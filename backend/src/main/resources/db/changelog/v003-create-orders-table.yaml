@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: v003-create-orders-table
+      author: anas
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: orders
+      changes:
+        - createTable:
+            tableName: orders
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: supplier_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: order_date
+                  type: TIMESTAMP
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+              - column:
+                  name: total_amount
+                  type: DOUBLE
+
+        - addForeignKeyConstraint:
+            baseTableName: orders
+            baseColumnNames: supplier_id
+            constraintName: fk_orders_supplier
+            referencedTableName: supplier
+            referencedColumnNames: id
+            onDelete: CASCADE

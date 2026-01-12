@@ -1,0 +1,38 @@
+name: tricol springboot ci
+
+on:
+  push:
+    branches:
+      - spring-security
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: clone repository
+        uses: actions/checkout@v3
+
+      - name: install jdk 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: build springboot app
+        run: mvn clean package -DskipTests
+
+      - name: set up docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: login to docker
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: build and push docker images
+        run: |
+          docker compose build
+          docker tag tricol-app ${{ secrets.DOCKER_USERNAME }}/tricol-springboot-api-app:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/tricol-springboot-api-app:latest
+

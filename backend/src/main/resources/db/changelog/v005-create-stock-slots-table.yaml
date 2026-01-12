@@ -1,0 +1,54 @@
+databaseChangeLog:
+  - changeSet:
+      id: v005-create-stock-slots-table
+      author: anas
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: stock_slots
+      changes:
+        - createTable:
+            tableName: stock_slots
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: entry_date
+                  type: TIMESTAMP
+              - column:
+                  name: quantity
+                  type: DOUBLE
+              - column:
+                  name: available_quantity
+                  type: DOUBLE
+              - column:
+                  name: unit_price
+                  type: DOUBLE
+              - column:
+                  name: order_id
+                  type: BIGINT
+              - column:
+                  name: product_id
+                  type: BIGINT
+
+        - addForeignKeyConstraint:
+            baseTableName: stock_slots
+            baseColumnNames: order_id
+            constraintName: fk_stock_slots_order
+            referencedTableName: orders
+            referencedColumnNames: id
+            onDelete: SET NULL
+
+        - addForeignKeyConstraint:
+            baseTableName: stock_slots
+            baseColumnNames: product_id
+            constraintName: fk_stock_slots_product
+            referencedTableName: products
+            referencedColumnNames: id
+            onDelete: CASCADE

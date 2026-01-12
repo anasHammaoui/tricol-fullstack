@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/v001-create-products-table.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/v002-create-fournisseur.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/v003-create-orders-table.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/v004-create-order-items-table.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/v005-create-stock-slots-table.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/v006-create-stock-movements-table.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/v007-create-exit-slips-table.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/v008-create-exit-slip-items-table.yaml
+      relativeToChangelogFile: false

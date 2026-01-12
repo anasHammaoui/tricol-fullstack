@@ -1,0 +1,66 @@
+databaseChangeLog:
+  - changeSet:
+      id: v006-create-stock-movements-table
+      author: anas
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: stock_movements
+      changes:
+        - createTable:
+            tableName: stock_movements
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: type
+                  type: VARCHAR(50)
+              - column:
+                  name: date
+                  type: TIMESTAMP
+              - column:
+                  name: quantity
+                  type: DOUBLE
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: order_id
+                  type: BIGINT
+              - column:
+                  name: stock_slot_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: stock_movements
+            baseColumnNames: product_id
+            constraintName: fk_stock_movements_product
+            referencedTableName: products
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: stock_movements
+            baseColumnNames: order_id
+            constraintName: fk_stock_movements_order
+            referencedTableName: orders
+            referencedColumnNames: id
+            onDelete: SET NULL
+
+        - addForeignKeyConstraint:
+            baseTableName: stock_movements
+            baseColumnNames: stock_slot_id
+            constraintName: fk_stock_movements_stock_slot
+            referencedTableName: stock_slots
+            referencedColumnNames: id
+            onDelete: CASCADE

@@ -1,0 +1,57 @@
+databaseChangeLog:
+  - changeSet:
+      id: v008-create-exit-slip-items-table
+      author: anas
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: exit_slip_items
+      changes:
+        - createTable:
+            tableName: exit_slip_items
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: exit_slip_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: requested_quantity
+                  type: DECIMAL(19,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: actual_quantity
+                  type: DECIMAL(19,2)
+              - column:
+                  name: note
+                  type: VARCHAR(255)
+
+        - addForeignKeyConstraint:
+            baseTableName: exit_slip_items
+            baseColumnNames: exit_slip_id
+            constraintName: fk_exit_slip_items_exit_slip
+            referencedTableName: exit_slips
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: exit_slip_items
+            baseColumnNames: product_id
+            constraintName: fk_exit_slip_items_product
+            referencedTableName: products
+            referencedColumnNames: id
+            onDelete: CASCADE
