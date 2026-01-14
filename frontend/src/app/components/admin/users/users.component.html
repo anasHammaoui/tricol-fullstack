@@ -1,0 +1,441 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Users Management</h1>
+      <p class="mt-1 text-sm text-gray-500">Manage user roles and permissions across your organization</p>
+    </div>
+    <div class="flex items-center gap-2 text-sm text-gray-500">
+      <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-100">
+        {{ filteredUsers.length }} users
+      </span>
+    </div>
+  </div>
+
+  <!-- Success/Error Messages -->
+  @if (successMessage) {
+    <div class="animate-slide-up flex items-center gap-3 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3">
+      <div class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500">
+        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <p class="font-medium text-emerald-800">Success</p>
+        <p class="text-sm text-emerald-600">{{ successMessage }}</p>
+      </div>
+    </div>
+  }
+
+  @if (errorMessage) {
+    <div class="animate-slide-up flex items-center gap-3 rounded-xl bg-red-50 border border-red-200 px-4 py-3">
+      <div class="flex h-8 w-8 items-center justify-center rounded-full bg-red-500">
+        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <p class="font-medium text-red-800">Error</p>
+        <p class="text-sm text-red-600">{{ errorMessage }}</p>
+      </div>
+    </div>
+  }
+
+  <!-- Filters -->
+  <div class="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+    <div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
+      <h3 class="font-semibold text-gray-900">Filters</h3>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Search -->
+        <div class="sm:col-span-2 lg:col-span-1">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+          <div class="relative">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+            </div>
+            <input
+              type="text"
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="onSearchChange()"
+              placeholder="Search by name or email..."
+              class="block w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+            />
+          </div>
+        </div>
+
+        <!-- Role Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
+          <select
+            [(ngModel)]="filterRole"
+            (ngModelChange)="onRoleFilterChange()"
+            class="block w-full rounded-lg border border-gray-300 bg-white py-2.5 px-3 text-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer"
+          >
+            <option value="all">All Users</option>
+            <option value="no-role">No Role Assigned</option>
+            @for (role of availableRoles; track role.value) {
+              <option [value]="role.value">{{ role.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Table -->
+  <div class="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">User</th>
+            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Role</th>
+            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Permissions</th>
+            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+            <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          @for (user of filteredUsers; track user.id) {
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center gap-4">
+                  <div class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm shadow-md">
+                    {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+                  </div>
+                  <div>
+                    <p class="font-medium text-gray-900">{{ user.firstName }} {{ user.lastName }}</p>
+                    <p class="text-sm text-gray-500">{{ user.email }}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                      [class]="user.roles && user.roles.length > 0 
+                        ? 'bg-indigo-100 text-indigo-700' 
+                        : 'bg-gray-100 text-gray-600'">
+                  {{ getUserRoleLabel(user.roles) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-medium text-gray-900">{{ getEffectivePermissions(user).length }}</span>
+                  <span class="text-sm text-gray-500">permissions</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+                      [class]="user.roles && user.roles.length > 0 
+                        ? 'bg-emerald-100 text-emerald-700' 
+                        : 'bg-amber-100 text-amber-700'">
+                  <span class="w-1.5 h-1.5 rounded-full" [class]="user.roles && user.roles.length > 0 ? 'bg-emerald-500' : 'bg-amber-500'"></span>
+                  {{ getUserStatus(user) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <button 
+                    (click)="viewUser(user)" 
+                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all"
+                    title="View Details"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                  </button>
+                  <button 
+                    (click)="openRoleModal(user)" 
+                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all"
+                    title="Assign Role"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                  </button>
+                  <button 
+                    (click)="openPermissionsModal(user)" 
+                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all"
+                    title="Manage Permissions"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (filteredUsers.length === 0) {
+        <div class="px-6 py-16 text-center">
+          <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <h3 class="mt-4 text-sm font-medium text-gray-900">No users found</h3>
+          <p class="mt-1 text-sm text-gray-500">Try adjusting your search or filter criteria.</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- View User Modal -->
+@if (showUserModal && selectedUser) {
+  <div class="fixed inset-0 z-50 overflow-y-auto animate-fade-in">
+    <div class="flex min-h-full items-center justify-center p-4">
+      <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" (click)="closeModal()"></div>
+      <div class="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl animate-slide-up">
+        <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+          <h3 class="text-lg font-semibold text-gray-900">User Details</h3>
+          <button (click)="closeModal()" class="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="p-6 space-y-6">
+          <!-- User Avatar -->
+          <div class="flex items-center gap-4">
+            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+              {{ selectedUser.firstName.charAt(0) }}{{ selectedUser.lastName.charAt(0) }}
+            </div>
+            <div>
+              <h4 class="text-xl font-semibold text-gray-900">{{ selectedUser.firstName }} {{ selectedUser.lastName }}</h4>
+              <p class="text-gray-500">{{ selectedUser.email }}</p>
+            </div>
+          </div>
+
+          <!-- Role -->
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-1">Role</label>
+            <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700">
+              {{ getUserRoleLabel(selectedUser.roles) }}
+            </span>
+          </div>
+
+          <!-- Role Default Permissions -->
+          @if (selectedUser.roleDefaultPermissions && selectedUser.roleDefaultPermissions.length > 0) {
+            <div>
+              <label class="block text-sm font-medium text-gray-500 mb-2">
+                Role Permissions ({{ selectedUser.roleDefaultPermissions.length }})
+              </label>
+              <div class="flex flex-wrap gap-2">
+                @for (permission of selectedUser.roleDefaultPermissions; track permission) {
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-700">
+                    {{ permission }}
+                    <svg class="w-3 h-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                  </span>
+                }
+              </div>
+              <p class="mt-2 text-xs text-gray-500">These permissions are inherited from the assigned role</p>
+            </div>
+          }
+
+          <!-- Custom Permissions -->
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-2">
+              Custom Permissions ({{ selectedUser.permissions?.length || 0 }})
+            </label>
+            <div class="flex flex-wrap gap-2">
+              @if (selectedUser.permissions && selectedUser.permissions.length > 0) {
+                @for (permission of selectedUser.permissions; track permission) {
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700">
+                    {{ permission }}
+                    <svg class="w-3 h-3 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/>
+                    </svg>
+                  </span>
+                }
+              } @else {
+                <p class="text-sm text-gray-400 italic">No custom permissions assigned</p>
+              }
+            </div>
+            <p class="mt-2 text-xs text-gray-500">Additional permissions granted specifically to this user</p>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-200 px-6 py-4 bg-gray-50 rounded-b-2xl">
+          <button
+            (click)="closeModal()"
+            class="w-full rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Assign Role Modal -->
+@if (showRoleModal && selectedUser) {
+  <div class="fixed inset-0 z-50 overflow-y-auto animate-fade-in">
+    <div class="flex min-h-full items-center justify-center p-4">
+      <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" (click)="closeModal()"></div>
+      <div class="relative w-full max-w-md rounded-2xl bg-white shadow-2xl animate-slide-up">
+        <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+          <h3 class="text-lg font-semibold text-gray-900">Assign Role</h3>
+          <button (click)="closeModal()" class="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="p-6 space-y-4">
+          <div class="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
+            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm">
+              {{ selectedUser.firstName.charAt(0) }}{{ selectedUser.lastName.charAt(0) }}
+            </div>
+            <div>
+              <p class="font-medium text-gray-900">{{ selectedUser.firstName }} {{ selectedUser.lastName }}</p>
+              <p class="text-sm text-gray-500">{{ selectedUser.email }}</p>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Select Role</label>
+            <select
+              [(ngModel)]="selectedRoleForAssignment"
+              class="block w-full rounded-lg border border-gray-300 bg-white py-2.5 px-3 text-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer"
+            >
+              <option value="">Choose a role...</option>
+              @for (role of availableRoles; track role.value) {
+                <option [value]="role.value">{{ role.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="flex gap-3 border-t border-gray-200 px-6 py-4 bg-gray-50 rounded-b-2xl">
+          <button
+            (click)="closeModal()"
+            class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            [disabled]="loading"
+          >
+            Cancel
+          </button>
+          <button
+            (click)="assignRole()"
+            class="flex-1 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            [disabled]="loading || !selectedRoleForAssignment"
+          >
+            {{ loading ? 'Assigning...' : 'Assign Role' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Manage Permissions Modal -->
+@if (showPermissionsModal && selectedUser) {
+  <div class="fixed inset-0 z-50 overflow-y-auto animate-fade-in">
+    <div class="flex min-h-full items-center justify-center p-4">
+      <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" (click)="closeModal()"></div>
+      <div class="relative w-full max-w-2xl rounded-2xl bg-white shadow-2xl animate-slide-up">
+        <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900">Manage Permissions</h3>
+            <p class="text-sm text-gray-500">{{ selectedUser.firstName }} {{ selectedUser.lastName }}</p>
+          </div>
+          <button (click)="closeModal()" class="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="p-6 max-h-96 overflow-y-auto">
+          <!-- Info Banner -->
+          <div class="mb-4 flex items-start gap-2 p-3 rounded-lg bg-blue-50 border border-blue-100">
+            <svg class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <div class="text-sm text-blue-700">
+              <p><strong>Role Default</strong> permissions are inherited from the user's role and cannot be removed individually.</p>
+              <p class="mt-1">You can add extra permissions by checking the unchecked boxes.</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            @for (group of allPermissions; track group.category) {
+              <div class="rounded-xl border border-gray-200 overflow-hidden hover:border-gray-300 transition-colors">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                  <h4 class="font-medium text-gray-900">{{ group.category }}</h4>
+                </div>
+                <div class="p-2 space-y-1">
+                  @for (permission of group.permissions; track permission) {
+                    <label 
+                      class="flex items-center gap-3 p-2 rounded-lg transition-colors"
+                      [class.cursor-pointer]="!isRoleDefaultPermission(permission, selectedUser)"
+                      [class.hover:bg-gray-50]="!isRoleDefaultPermission(permission, selectedUser)"
+                      [class.bg-emerald-50]="isRoleDefaultPermission(permission, selectedUser)"
+                      [class.cursor-not-allowed]="isRoleDefaultPermission(permission, selectedUser)"
+                    >
+                      <input
+                        type="checkbox"
+                        [checked]="hasPermission(permission)"
+                        (change)="togglePermission(permission)"
+                        [disabled]="isRoleDefaultPermission(permission, selectedUser)"
+                        class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        [class.cursor-pointer]="!isRoleDefaultPermission(permission, selectedUser)"
+                        [class.cursor-not-allowed]="isRoleDefaultPermission(permission, selectedUser)"
+                      />
+                      <span class="flex-1 text-sm" [class.text-gray-700]="!isRoleDefaultPermission(permission, selectedUser)" [class.text-emerald-700]="isRoleDefaultPermission(permission, selectedUser)">
+                        {{ permission }}
+                      </span>
+                      @if (isRoleDefaultPermission(permission, selectedUser)) {
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-700">
+                          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                          </svg>
+                          Role Default
+                        </span>
+                      }
+                      @if (isExplicitPermission(permission, selectedUser)) {
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-700">
+                          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/>
+                          </svg>
+                          Custom
+                        </span>
+                      }
+                    </label>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="flex gap-3 border-t border-gray-200 px-6 py-4 bg-gray-50 rounded-b-2xl">
+          <button
+            (click)="closeModal()"
+            class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            [disabled]="loading"
+          >
+            Cancel
+          </button>
+          <button
+            (click)="savePermissions()"
+            class="flex-1 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            [disabled]="loading"
+          >
+            {{ loading ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
