@@ -13,5 +13,7 @@ public class UserResponseDto {
     private String email;
     private Boolean active;
     private List<String> roles;
+    private List<String> permissions; // User's explicit custom permissions
+    private List<String> roleDefaultPermissions; // Permissions inherited from role
     private LocalDateTime createdAt;
 }

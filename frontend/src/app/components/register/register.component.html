@@ -1,0 +1,173 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <div>
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        Create your account
+      </h2>
+      <p class="mt-2 text-center text-sm text-gray-600">
+        Or
+        <a routerLink="/login" class="font-medium text-blue-600 hover:text-blue-500">
+          sign in to existing account
+        </a>
+      </p>
+    </div>
+
+    <form class="mt-8 space-y-6" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      @if (errorMessage()) {
+        <div class="rounded-md bg-red-50 p-4">
+          <div class="flex">
+            <div class="ml-3">
+              <p class="text-sm font-medium text-red-800">{{ errorMessage() }}</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (successMessage()) {
+        <div class="rounded-md bg-green-50 p-4">
+          <div class="flex">
+            <div class="ml-3">
+              <p class="text-sm font-medium text-green-800">{{ successMessage() }}</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
+            <input
+              id="firstName"
+              type="text"
+              formControlName="firstName"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="First Name"
+              [class.border-red-500]="firstName?.invalid && firstName?.touched"
+            />
+            @if (firstName?.invalid && firstName?.touched) {
+              <div class="text-red-500 text-xs mt-1">
+                @if (firstName?.errors?.['required']) {
+                  <p>First name is required</p>
+                }
+                @if (firstName?.errors?.['maxlength']) {
+                  <p>Max 50 characters</p>
+                }
+              </div>
+            }
+          </div>
+
+          <div>
+            <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
+            <input
+              id="lastName"
+              type="text"
+              formControlName="lastName"
+              class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="Last Name"
+              [class.border-red-500]="lastName?.invalid && lastName?.touched"
+            />
+            @if (lastName?.invalid && lastName?.touched) {
+              <div class="text-red-500 text-xs mt-1">
+                @if (lastName?.errors?.['required']) {
+                  <p>Last name is required</p>
+                }
+                @if (lastName?.errors?.['maxlength']) {
+                  <p>Max 50 characters</p>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder="Email address"
+            [class.border-red-500]="email?.invalid && email?.touched"
+          />
+          @if (email?.invalid && email?.touched) {
+            <div class="text-red-500 text-xs mt-1">
+              @if (email?.errors?.['required']) {
+                <p>Email is required</p>
+              }
+              @if (email?.errors?.['email']) {
+                <p>Invalid email format</p>
+              }
+              @if (email?.errors?.['maxlength']) {
+                <p>Max 100 characters</p>
+              }
+            </div>
+          }
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder="Password"
+            [class.border-red-500]="password?.invalid && password?.touched"
+          />
+          @if (password?.invalid && password?.touched) {
+            <div class="text-red-500 text-xs mt-1">
+              @if (password?.errors?.['required']) {
+                <p>Password is required</p>
+              }
+              @if (password?.errors?.['minlength']) {
+                <p>Password must be at least 8 characters</p>
+              }
+              @if (password?.errors?.['maxlength']) {
+                <p>Password must not exceed 40 characters</p>
+              }
+            </div>
+          }
+        </div>
+
+        <div>
+          <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            formControlName="confirmPassword"
+            class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder="Confirm Password"
+            [class.border-red-500]="confirmPassword?.invalid && confirmPassword?.touched || registerForm.errors?.['passwordMismatch'] && confirmPassword?.touched"
+          />
+          @if (confirmPassword?.invalid && confirmPassword?.touched) {
+            <div class="text-red-500 text-xs mt-1">
+              @if (confirmPassword?.errors?.['required']) {
+                <p>Please confirm your password</p>
+              }
+            </div>
+          }
+          @if (registerForm.errors?.['passwordMismatch'] && confirmPassword?.touched) {
+            <div class="text-red-500 text-xs mt-1">
+              <p>Passwords do not match</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div>
+        <button
+          type="submit"
+          [disabled]="isLoading()"
+          class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          @if (isLoading()) {
+            <span>Creating account...</span>
+          } @else {
+            <span>Create account</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
