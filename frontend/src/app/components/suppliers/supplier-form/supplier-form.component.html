@@ -1,0 +1,249 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex items-center gap-4">
+    <button
+      (click)="cancel()"
+      class="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+      </svg>
+    </button>
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">{{ isEditMode ? 'Edit Supplier' : 'Create New Supplier' }}</h1>
+      <p class="mt-1 text-sm text-gray-500">{{ isEditMode ? 'Update supplier information' : 'Add a new supplier to your system' }}</p>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  @if (errorMessage) {
+    <div class="animate-slide-up flex items-center gap-3 rounded-xl bg-red-50 border border-red-200 px-4 py-3">
+      <div class="flex h-8 w-8 items-center justify-center rounded-full bg-red-500">
+        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+      <p class="text-sm font-medium text-red-800">{{ errorMessage }}</p>
+    </div>
+  }
+
+  <!-- Form -->
+  @if (isLoading) {
+    <div class="rounded-2xl bg-white border border-gray-200 shadow-sm p-12">
+      <div class="flex items-center justify-center">
+        <div class="text-center">
+          <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
+          <p class="mt-4 text-sm text-gray-600">Loading supplier data...</p>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <form [formGroup]="supplierForm" (ngSubmit)="onSubmit()">
+      <div class="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+        <!-- Company Information Section -->
+        <div class="p-6 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Company Information</h2>
+          <p class="text-sm text-gray-500 mt-1">Basic company details and identification</p>
+        </div>
+
+        <div class="p-6 space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Society -->
+            <div>
+              <label for="society" class="block text-sm font-medium text-gray-700 mb-2">
+                Company Name <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="society"
+                formControlName="society"
+                [class.border-red-300]="hasFieldError('society')"
+                [class.focus:border-red-500]="hasFieldError('society')"
+                [class.focus:ring-red-500]="hasFieldError('society')"
+                class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                placeholder="e.g., ABC Corporation"
+              />
+              @if (hasFieldError('society')) {
+                <p class="mt-1.5 text-sm text-red-600">{{ getFieldError('society') }}</p>
+              }
+            </div>
+
+            <!-- Social Reason -->
+            <div>
+              <label for="socialReason" class="block text-sm font-medium text-gray-700 mb-2">
+                Legal Name (Raison Sociale) <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="socialReason"
+                formControlName="socialReason"
+                [class.border-red-300]="hasFieldError('socialReason')"
+                [class.focus:border-red-500]="hasFieldError('socialReason')"
+                [class.focus:ring-red-500]="hasFieldError('socialReason')"
+                class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                placeholder="Official registered company name"
+              />
+              @if (hasFieldError('socialReason')) {
+                <p class="mt-1.5 text-sm text-red-600">{{ getFieldError('socialReason') }}</p>
+              }
+            </div>
+
+            <!-- ICE -->
+            <div>
+              <label for="ice" class="block text-sm font-medium text-gray-700 mb-2">
+                ICE Number <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="ice"
+                formControlName="ice"
+                maxlength="15"
+                [class.border-red-300]="hasFieldError('ice')"
+                [class.focus:border-red-500]="hasFieldError('ice')"
+                [class.focus:ring-red-500]="hasFieldError('ice')"
+                class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                placeholder="15-digit ICE number"
+              />
+              @if (hasFieldError('ice')) {
+                <p class="mt-1.5 text-sm text-red-600">{{ getFieldError('ice') }}</p>
+              } @else {
+                <p class="mt-1.5 text-xs text-gray-500">Format: 15 digits exactly</p>
+              }
+            </div>
+
+            <!-- City -->
+            <div>
+              <label for="city" class="block text-sm font-medium text-gray-700 mb-2">
+                City <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="city"
+                formControlName="city"
+                [class.border-red-300]="hasFieldError('city')"
+                [class.focus:border-red-500]="hasFieldError('city')"
+                [class.focus:ring-red-500]="hasFieldError('city')"
+                class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                placeholder="e.g., Casablanca"
+              />
+              @if (hasFieldError('city')) {
+                <p class="mt-1.5 text-sm text-red-600">{{ getFieldError('city') }}</p>
+              }
+            </div>
+          </div>
+
+          <!-- Address (Full Width) -->
+          <div>
+            <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
+              Complete Address <span class="text-red-500">*</span>
+            </label>
+            <textarea
+              id="address"
+              formControlName="address"
+              rows="3"
+              [class.border-red-300]="hasFieldError('address')"
+              [class.focus:border-red-500]="hasFieldError('address')"
+              [class.focus:ring-red-500]="hasFieldError('address')"
+              class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none"
+              placeholder="Full business address including street, building, etc."
+            ></textarea>
+            @if (hasFieldError('address')) {
+              <p class="mt-1.5 text-sm text-red-600">{{ getFieldError('address') }}</p>
+            }
+          </div>
+        </div>
+
+        <!-- Contact Information Section -->
+        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <h2 class="text-lg font-semibold text-gray-900">Contact Information</h2>
+          <p class="text-sm text-gray-500 mt-1">Primary contact details for this supplier</p>
+        </div>
+
+        <div class="p-6 space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Contact Agent -->
+            <div>
+              <label for="contactAgent" class="block text-sm font-medium text-gray-700 mb-2">
+                Contact Person <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="contactAgent"
+                formControlName="contactAgent"
+                [class.border-red-300]="hasFieldError('contactAgent')"
+                [class.focus:border-red-500]="hasFieldError('contactAgent')"
+                [class.focus:ring-red-500]="hasFieldError('contactAgent')"
+                class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                placeholder="Full name of contact person"
+              />
+              @if (hasFieldError('contactAgent')) {
+                <p class="mt-1.5 text-sm text-red-600">{{ getFieldError('contactAgent') }}</p>
+              }
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                Email Address <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
+                [class.border-red-300]="hasFieldError('email')"
+                [class.focus:border-red-500]="hasFieldError('email')"
+                [class.focus:ring-red-500]="hasFieldError('email')"
+                class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                placeholder="contact@company.com"
+              />
+              @if (hasFieldError('email')) {
+                <p class="mt-1.5 text-sm text-red-600">{{ getFieldError('email') }}</p>
+              }
+            </div>
+
+            <!-- Phone -->
+            <div>
+              <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                Phone Number <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                formControlName="phone"
+                [class.border-red-300]="hasFieldError('phone')"
+                [class.focus:border-red-500]="hasFieldError('phone')"
+                [class.focus:ring-red-500]="hasFieldError('phone')"
+                class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                placeholder="+212612345678 or 0612345678"
+              />
+              @if (hasFieldError('phone')) {
+                <p class="mt-1.5 text-sm text-red-600">{{ getFieldError('phone') }}</p>
+              } @else {
+                <p class="mt-1.5 text-xs text-gray-500">Format: +212XXXXXXXXX or 0XXXXXXXXX</p>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex gap-3 border-t border-gray-200 px-6 py-4 bg-gray-50">
+          <button
+            type="button"
+            (click)="cancel()"
+            class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+            [disabled]="isSubmitting"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="flex-1 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            [disabled]="isSubmitting || supplierForm.invalid"
+          >
+            {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Supplier' : 'Create Supplier') }}
+          </button>
+        </div>
+      </div>
+    </form>
+  }
+</div>

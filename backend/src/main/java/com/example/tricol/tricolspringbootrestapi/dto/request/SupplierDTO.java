@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SupplierDTO {
+    private Long id;
     private String society;
     private String address;
     private String socialReason;
