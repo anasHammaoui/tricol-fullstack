@@ -84,6 +84,22 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  hasPermission(permission: string): boolean {
+    const user = this.getCurrentUser();
+    return user?.permissions?.includes(permission) || false;
+  }
+
+  hasAnyPermission(permissions: string[]): boolean {
+    const user = this.getCurrentUser();
+    if (!user?.permissions) return false;
+    return permissions.some(permission => user.permissions.includes(permission));
+  }
+
+  hasRole(role: string): boolean {
+    const user = this.getCurrentUser();
+    return user?.roles?.includes(role) || false;
+  }
+
   private handleAuthResponse(response: JwtResponse): void {
     this.setAccessToken(response.token);
     this.setRefreshToken(response.refreshToken);

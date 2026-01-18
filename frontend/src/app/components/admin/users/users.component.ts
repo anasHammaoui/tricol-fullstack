@@ -124,7 +124,6 @@ export class UsersComponent implements OnInit {
     this.selectedUser = user;
     this.permissionsToUpdate = {};
     
-    // Initialize with all effective permissions (explicit + role defaults)
     const effectivePermissions = this.getEffectivePermissions(user);
     effectivePermissions.forEach(permission => {
       this.permissionsToUpdate[permission] = true;
@@ -166,7 +165,6 @@ export class UsersComponent implements OnInit {
     this.loading = true;
     const updates: Promise<any>[] = [];
 
-    // Get permission ID mapping
     const permissionIds: { [key: string]: number } = {
       'SUPPLIERS_READ': 1, 'SUPPLIERS_WRITE': 2,
       'PRODUCTS_READ': 3, 'PRODUCTS_WRITE': 4, 'PRODUCTS_CONFIGURE_ALERTS': 5,
@@ -187,14 +185,11 @@ export class UsersComponent implements OnInit {
       const isRoleDefault = roleDefaultPerms.includes(permission);
       const hasExplicit = currentExplicitPerms.includes(permission);
 
-      // Only handle explicit (custom) permissions, not role defaults
       if (isGranted && !isRoleDefault && !hasExplicit) {
-        // Add new explicit permission
         updates.push(
           this.adminService.updateUserPermission(this.selectedUser!.id, permissionId, true).toPromise()
         );
       } else if (!isGranted && hasExplicit) {
-        // Remove explicit permission
         updates.push(
           this.adminService.removeUserPermission(this.selectedUser!.id, permissionId).toPromise()
         );

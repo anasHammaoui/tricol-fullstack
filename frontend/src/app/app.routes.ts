@@ -1,10 +1,18 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { permissionGuard } from './guards/permission.guard';
+import { roleGuard } from './guards/role.guard';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { HomeComponent } from './components/home/home.component';
 import { UsersComponent } from './components/admin/users/users.component';
+import { SuppliersListComponent } from './components/suppliers/suppliers-list/suppliers-list.component';
+import { SupplierFormComponent } from './components/suppliers/supplier-form/supplier-form.component';
+import { SupplierDetailComponent } from './components/suppliers/supplier-detail/supplier-detail.component';
+import { ProductsListComponent } from './components/products/products-list/products-list.component';
+import { ProductFormComponent } from './components/products/product-form/product-form.component';
+import { ProductDetailComponent } from './components/products/product-detail/product-detail.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -16,12 +24,60 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', component: HomeComponent },
-      { path: 'admin/users', component: UsersComponent },
-      // Add your other routes here as children
-      // { path: 'suppliers', component: SuppliersComponent },
-      // { path: 'products', component: ProductsComponent },
-      // { path: 'orders', component: OrdersComponent },
-      // etc.
+      { 
+        path: 'admin/users', 
+        component: UsersComponent,
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] }
+      },
+      { 
+        path: 'suppliers', 
+        component: SuppliersListComponent,
+        canActivate: [permissionGuard],
+        data: { permissions: ['SUPPLIERS_READ'] }
+      },
+      { 
+        path: 'suppliers/create', 
+        component: SupplierFormComponent,
+        canActivate: [permissionGuard],
+        data: { permissions: ['SUPPLIERS_WRITE'] }
+      },
+      { 
+        path: 'suppliers/edit/:id', 
+        component: SupplierFormComponent,
+        canActivate: [permissionGuard],
+        data: { permissions: ['SUPPLIERS_WRITE'] }
+      },
+      { 
+        path: 'suppliers/:id', 
+        component: SupplierDetailComponent,
+        canActivate: [permissionGuard],
+        data: { permissions: ['SUPPLIERS_READ'] }
+      },
+      { 
+        path: 'products', 
+        component: ProductsListComponent,
+        canActivate: [permissionGuard],
+        data: { permissions: ['PRODUCTS_READ'] }
+      },
+      { 
+        path: 'products/create', 
+        component: ProductFormComponent,
+        canActivate: [permissionGuard],
+        data: { permissions: ['PRODUCTS_WRITE'] }
+      },
+      { 
+        path: 'products/edit/:id', 
+        component: ProductFormComponent,
+        canActivate: [permissionGuard],
+        data: { permissions: ['PRODUCTS_WRITE'] }
+      },
+      { 
+        path: 'products/:id', 
+        component: ProductDetailComponent,
+        canActivate: [permissionGuard],
+        data: { permissions: ['PRODUCTS_READ'] }
+      }
     ]
   },
   { path: '**', redirectTo: '/dashboard' }

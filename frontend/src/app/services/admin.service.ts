@@ -8,8 +8,8 @@ export interface UserResponse {
   firstName: string;
   lastName: string;
   roles: string[];
-  permissions: string[]; // User's explicit custom permissions
-  roleDefaultPermissions: string[]; // Permissions inherited from role
+  permissions: string[];
+  roleDefaultPermissions: string[];
   active?: boolean;
 }
 

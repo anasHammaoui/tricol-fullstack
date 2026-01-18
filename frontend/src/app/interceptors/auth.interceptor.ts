@@ -6,14 +6,12 @@ import { AuthService } from '../services/auth.service';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   
-  // Skip token attachment for auth endpoints
   if (req.url.includes('/auth/login') || 
       req.url.includes('/auth/register') || 
       req.url.includes('/auth/refresh')) {
     return next(req);
   }
 
-  // Attach access token if available
   const token = authService.getAccessToken();
   if (token) {
     req = req.clone({
@@ -25,11 +23,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Handle 401 Unauthorized - attempt token refresh
       if (error.status === 401 && !req.url.includes('/auth/refresh')) {
         return authService.refreshToken().pipe(
           switchMap(() => {
-            // Retry original request with new token
             const newToken = authService.getAccessToken();
             if (newToken) {
               const clonedRequest = req.clone({
@@ -42,7 +38,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             return throwError(() => error);
           }),
           catchError(refreshError => {
-            // Refresh failed, logout user
             authService.logout();
             return throwError(() => refreshError);
           })
