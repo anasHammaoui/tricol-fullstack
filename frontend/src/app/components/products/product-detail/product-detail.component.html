@@ -1,0 +1,166 @@
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <button
+        (click)="goBack()"
+        class="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+      </button>
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Product Details</h1>
+        <p class="mt-1 text-sm text-gray-500">View complete product information</p>
+      </div>
+    </div>
+    @if (canWrite && product()) {
+      <button
+        (click)="editProduct()"
+        class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition-colors cursor-pointer"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+        Edit Product
+      </button>
+    }
+  </div>
+
+  <!-- Error Message -->
+  @if (errorMessage()) {
+    <div class="animate-slide-up flex items-center gap-3 rounded-xl bg-red-50 border border-red-200 px-4 py-3">
+      <div class="flex h-8 w-8 items-center justify-center rounded-full bg-red-500">
+        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+      <p class="text-sm font-medium text-red-800">{{ errorMessage() }}</p>
+    </div>
+  }
+
+  <!-- Product Details -->
+  @if (isLoading()) {
+    <div class="rounded-2xl bg-white border border-gray-200 shadow-sm p-12">
+      <div class="flex items-center justify-center">
+        <div class="text-center">
+          <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
+          <p class="mt-4 text-sm text-gray-600">Loading product details...</p>
+        </div>
+      </div>
+    </div>
+  } @else if (product()) {
+    <div class="space-y-6">
+      <!-- Basic Information Card -->
+      <div class="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-200 bg-gray-50">
+          <h2 class="text-lg font-semibold text-gray-900">Product Information</h2>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-500 mb-1">Reference</label>
+              <p class="text-gray-900">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                  {{ product()!.reference }}
+                </span>
+              </p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-500 mb-1">Product Name</label>
+              <p class="text-lg font-semibold text-gray-900">{{ product()!.name }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-500 mb-1">Category</label>
+              <p class="text-gray-900">{{ product()!.category }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-500 mb-1">Unit Price</label>
+              <p class="text-xl font-bold text-indigo-600">{{ product()!.unitPrice | number:'1.2-2' }} MAD</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-500 mb-1">Measure Unit</label>
+              <p class="text-gray-900">{{ product()!.measureUnit }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-500 mb-1">Created At</label>
+              <p class="text-gray-900">{{ product()!.createdAt ? (product()!.createdAt | date:'medium') : 'N/A' }}</p>
+            </div>
+            @if (product()!.description) {
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-500 mb-1">Description</label>
+                <p class="text-gray-900">{{ product()!.description }}</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Stock Information Card -->
+      <div class="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-200 bg-gray-50">
+          <h2 class="text-lg font-semibold text-gray-900">Stock Information</h2>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="rounded-xl border-2 border-gray-200 p-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-500">Current Stock</p>
+                  <p class="mt-2 text-3xl font-bold text-gray-900">{{ product()!.currentStock }}</p>
+                  <p class="text-sm text-gray-500 mt-1">{{ product()!.measureUnit }}</p>
+                </div>
+                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+                  <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-xl border-2 border-gray-200 p-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-500">Reorder Point</p>
+                  <p class="mt-2 text-3xl font-bold text-gray-900">{{ product()!.reorderPoint }}</p>
+                  <p class="text-sm text-gray-500 mt-1">{{ product()!.measureUnit }}</p>
+                </div>
+                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+                  <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div [class]="isLowStock() ? 'rounded-xl border-2 border-red-300 bg-red-50 p-4' : 'rounded-xl border-2 border-green-300 bg-green-50 p-4'">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium" [class]="isLowStock() ? 'text-red-700' : 'text-green-700'">Stock Status</p>
+                  <p class="mt-2 text-lg font-bold" [class]="isLowStock() ? 'text-red-900' : 'text-green-900'">
+                    {{ isLowStock() ? 'Low Stock' : 'Adequate' }}
+                  </p>
+                  <p class="text-xs mt-1" [class]="isLowStock() ? 'text-red-600' : 'text-green-600'">
+                    {{ isLowStock() ? 'Reorder needed' : 'Stock is healthy' }}
+                  </p>
+                </div>
+                <div class="flex h-12 w-12 items-center justify-center rounded-full" [class]="isLowStock() ? 'bg-red-200' : 'bg-green-200'">
+                  @if (isLowStock()) {
+                    <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                  } @else {
+                    <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

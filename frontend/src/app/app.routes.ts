@@ -10,6 +10,9 @@ import { UsersComponent } from './components/admin/users/users.component';
 import { SuppliersListComponent } from './components/suppliers/suppliers-list/suppliers-list.component';
 import { SupplierFormComponent } from './components/suppliers/supplier-form/supplier-form.component';
 import { SupplierDetailComponent } from './components/suppliers/supplier-detail/supplier-detail.component';
+import { ProductsListComponent } from './components/products/products-list/products-list.component';
+import { ProductFormComponent } from './components/products/product-form/product-form.component';
+import { ProductDetailComponent } from './components/products/product-detail/product-detail.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -50,6 +53,30 @@ export const routes: Routes = [
         component: SupplierDetailComponent,
         canActivate: [permissionGuard],
         data: { permissions: ['SUPPLIERS_READ'] }
+      },
+      { 
+        path: 'products', 
+        component: ProductsListComponent,
+        canActivate: [permissionGuard],
+        data: { permissions: ['PRODUCTS_READ'] }
+      },
+      { 
+        path: 'products/create', 
+        component: ProductFormComponent,
+        canActivate: [permissionGuard],
+        data: { permissions: ['PRODUCTS_WRITE'] }
+      },
+      { 
+        path: 'products/edit/:id', 
+        component: ProductFormComponent,
+        canActivate: [permissionGuard],
+        data: { permissions: ['PRODUCTS_WRITE'] }
+      },
+      { 
+        path: 'products/:id', 
+        component: ProductDetailComponent,
+        canActivate: [permissionGuard],
+        data: { permissions: ['PRODUCTS_READ'] }
       }
     ]
   },
