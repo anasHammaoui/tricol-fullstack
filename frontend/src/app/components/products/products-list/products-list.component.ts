@@ -94,6 +94,10 @@ export class ProductsListComponent implements OnInit {
     return this.authService.hasPermission('PRODUCTS_WRITE');
   }
 
+  get canConfigureThresholds(): boolean {
+    return this.authService.hasPermission('PRODUCTS_WRITE');
+  }
+
   constructor() {
     effect(() => {
       const total = this.totalPages();

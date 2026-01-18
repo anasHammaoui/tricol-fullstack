@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../../services/product.service';
+import { AuthService } from '../../../services/auth.service';
 import { Product } from '../../../models/product.model';
 
 @Component({
@@ -15,6 +16,7 @@ import { Product } from '../../../models/product.model';
 export class ProductFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly productService = inject(ProductService);
+  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -28,12 +30,17 @@ export class ProductFormComponent implements OnInit {
   categories = ['Electronics', 'Furniture', 'Supplies', 'Raw Materials', 'Tools'];
   measureUnits = ['Unit', 'Kg', 'Liter', 'Meter', 'Box', 'Pallet'];
 
+  get canConfigureThresholds(): boolean {
+    return this.authService.hasPermission('PRODUCTS_WRITE');
+  }
+
   ngOnInit(): void {
     this.initForm();
     this.checkEditMode();
   }
 
   initForm(): void {
+    const canConfigureThresholds = this.canConfigureThresholds;
     this.productForm = this.fb.group({
       reference: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(200)]],
@@ -41,7 +48,7 @@ export class ProductFormComponent implements OnInit {
       unitPrice: [0, [Validators.required, Validators.min(0)]],
       category: ['', [Validators.required]],
       measureUnit: ['', [Validators.required]],
-      reorderPoint: [0, [Validators.required, Validators.min(0)]],
+      reorderPoint: [{ value: 0, disabled: !canConfigureThresholds }, [Validators.required, Validators.min(0)]],
       currentStock: [{ value: 0, disabled: this.isEditMode() }, [Validators.min(0)]]
     });
   }
