@@ -3,8 +3,8 @@ export interface MenuItem {
   icon: string;
   route?: string;
   children?: MenuItem[];
-  roles: string[]; // Which roles can see this menu item
-  permissions?: string[]; // Optional: specific permissions required
+  roles: string[];
+  permissions?: string[];
 }
 
 export const MENU_ITEMS: MenuItem[] = [

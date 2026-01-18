@@ -55,7 +55,6 @@ export class DashboardComponent implements OnInit {
     if (!this.currentUser || !this.currentUser.roles.length) return 'User';
     const role = this.currentUser.roles[0];
     
-    // Map backend roles to display names
     const roleMap: { [key: string]: string } = {
       'ROLE_ADMIN': 'Administrator',
       'ROLE_RESPONSABLE_ACHATS': 'Purchasing Manager',
